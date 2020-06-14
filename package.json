@@ -1,0 +1,23 @@
+{
+  "name": "bluelion",
+  "version": "1.0.0",
+  "description": "experimental discord bot",
+  "main": "distr/index.js",
+  "scripts": {
+    "b": "tsc",
+    "r": "tsc && node distr/index.js",
+    "debug": "tsc && node distr/index.js"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Mem",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.13"
+  }
+}

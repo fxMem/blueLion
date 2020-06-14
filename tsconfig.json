@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "declaration": false,
+        "module": "CommonJS",
+        "target": "es5",
+        "sourceMap": true,
+        "lib": [
+            "es2015"
+        ],
+        "outDir": "distr"
+    },
+    "exclude": [
+        "distr",
+        "node_modules"
+    ]
+}
