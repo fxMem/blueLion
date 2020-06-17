@@ -1,3 +1,5 @@
+import { CommandArgument } from "./CommandArgument";
+
 export enum CommandArgumentType {
     text,
     mentions
@@ -111,6 +113,11 @@ export class CommandArgumentMetadataBuilder {
         this.metadata.index = index;
         return this;
     }
+
+    catchAll(): this {
+        this.metadata.isCatchAll = true;
+        return this;
+    }
 }
 
 export function optional(name: string): CommandArgumentMetadataBuilder {
@@ -131,4 +138,54 @@ export function mention() {
 
 export function unnamed() {
     return new CommandArgumentMetadataBuilder();
+}
+
+export function resolveArguments(providedArguments: CommandArgument[], commandArgumentsMetadata: CommandArgumentMetadata[]): (string | CommandArgument[])[] {
+    const mappedArguments: { [key: string]: boolean } = {};
+    return commandArgumentsMetadata.map(requiredArgument => {
+        const { name, index, isCatchAll, isRequired, type } = requiredArgument;
+
+        // Mentions are retrieved from Discord message object directly anyway so we don't 
+        // bother with it here
+        if (type === CommandArgumentType.mentions) {
+            return null;
+        }
+
+        const providedNamedArgument = providedArguments.find(
+            providedArgument => providedArgument.name && providedArgument.name === name
+        );
+
+        if (providedNamedArgument) {
+            mappedArguments[index] = true;
+            return providedNamedArgument.value;
+        }
+
+        // Catch all arguments may only appear at the end of the list
+        if (isCatchAll) {
+            const catchedValues = [] as CommandArgument[];
+            for (let providedArgumentIndex = 0; providedArgumentIndex < providedArguments.length; providedArgumentIndex++) {
+                if (mappedArguments[providedArgumentIndex]) {
+                    continue;
+                }
+
+                const providedArgument = providedArguments[providedArgumentIndex];
+                catchedValues.push(providedArgument);
+                mappedArguments[providedArgumentIndex] = true;
+            }
+
+            return catchedValues;
+        }
+
+        const providedArgumentByIndex = providedArguments.length > index ? providedArguments[index] : null;
+        if (providedArgumentByIndex && !mappedArguments[index]) {
+            mappedArguments[index] = true;
+            return providedArgumentByIndex.value;
+        }
+
+        if (!isRequired) {
+            return null;
+        }
+
+        throw new Error(`Value for required argument ${requiredArgument.name ?? requiredArgument.index} is not provided!`);
+    });
 }

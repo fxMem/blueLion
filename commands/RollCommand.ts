@@ -4,12 +4,17 @@ import { build, optional, mention } from "../CommandArgumentsMap";
 import { getRandomIntFromInterval } from "../common/Random";
 import { toMention } from "../common/MentionHelper";
 import { range } from "../common/Range";
+import { localizedStringBuilder } from "../localization/LocalizedString";
+import { Language } from "../localization/Language";
 
 export class RollCommand implements Command {
     name = 'roll';
-    description = "Lets you throw a dice. Virtually.";
-    argumentsMap = build([optional('amount'), mention().optional()]);
+    description = localizedStringBuilder({
+        ['ENG']: "Lets you throw a dice. Virtually.",
+        ['RU']: 'Позволяет вам бросить кость. Виртуальную, разумеется.'
+    });
 
+    argumentsMap = build([optional('amount'), mention().optional()]);
     invoke(context: DiscordContext, amount: string) {
         const rollAmount = parseInt(amount) || 1;
         if (rollAmount > 100) {
