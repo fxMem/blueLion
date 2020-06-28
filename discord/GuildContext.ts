@@ -1,9 +1,11 @@
-import { User, TextChannel, DMChannel, NewsChannel, MessageMentions, EmojiIdentifierResolvable, MessageReaction, StringResolvable, MessageOptions, MessageAdditions, Message, SplitOptions, APIMessage } from "discord.js";
+import { User, TextChannel, DMChannel, NewsChannel, MessageMentions, EmojiIdentifierResolvable, MessageReaction, StringResolvable, MessageOptions, MessageAdditions, Message, SplitOptions, APIMessage, Guild } from "discord.js";
 
-export type DiscordContext = {
+export type GuildContext = {
     author: User;
     channel: TextChannel | DMChannel | NewsChannel;
     mentions: MessageMentions;
+
+    guild: Guild;
 
     react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
     reply(
