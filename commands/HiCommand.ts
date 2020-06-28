@@ -1,17 +1,24 @@
 import { Command } from "../Command";
-import { DiscordContext } from "../discord/DiscordContext";
-import { localizedStringBuilder } from "../localization/LocalizedString";
-import { Language } from "../localization/Language";
+import { GuildContext } from "../discord/GuildContext";
+import { buildLocalization } from "../localization/Localization";
+
+const localization = buildLocalization({
+    description: {
+        ['ENG']: `It's a nice way to get to know each other!`,
+        ['RU']: 'Эта команда - хороший способ узнать друг друга получше!'
+    },
+    hi: {
+        ['ENG']: `Hi there!`,
+        ['RU']: 'Привет!'
+    }
+})
 
 export class HiCommand implements Command {
     name = 'hi';
-    description = localizedStringBuilder({
-        ['ENG']: `It's a nice way to get to know each other!`,
-        ['RU']: 'Эта команда - хороший способ узнать друг друга получше!.'
-    });
+    description = localization.description;
 
     argumentsMap = [];
-    invoke(context: DiscordContext) {
-        context.reply('Hi there!');
+    invoke(context: GuildContext) {
+        context.reply(localization.hi());
     }
 }

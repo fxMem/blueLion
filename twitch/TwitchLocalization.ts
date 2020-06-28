@@ -1,6 +1,6 @@
-import { LocalizationConfig } from "../localization/LocalizationConfig";
+import { buildLocalization } from "../localization/Localization";
 
-export const twitchLocalization: LocalizationConfig = {
+export const twitchLocalization = buildLocalization({
     twitchCommandDescription: {
         ['ENG']: 'Set of twitch utilities.',
         ['RU']: 'Набор инструментов для работы с Twitch.'
@@ -9,4 +9,4 @@ export const twitchLocalization: LocalizationConfig = {
         ['ENG']: 'Adds watcher and writes a notification message to mentioned channel when twitch channel goes live.',
         ['RU']: 'Проверяет указанный Twitch-аккаунт и пишет уведомление в упомянутый канал когда стример начинает стрим.'
     }
-}
+});

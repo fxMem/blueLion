@@ -5,7 +5,7 @@ import { twitchLocalization } from "./TwitchLocalization";
 
 export class TwitchCommand extends AggregateCommandBase {
     name = 'twitch';
-    description = localizedStringBuilder(twitchLocalization.twitchCommandDescription);
+    description = twitchLocalization.twitchCommandDescription;
 
     subCommands = [new LiveNotification()];
 }

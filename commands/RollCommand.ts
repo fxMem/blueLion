@@ -4,21 +4,32 @@ import { build, optional, mention } from "../CommandArgumentsMap";
 import { getRandomIntFromInterval } from "../common/Random";
 import { toMention } from "../common/MentionHelper";
 import { range } from "../common/Range";
-import { localizedStringBuilder } from "../localization/LocalizedString";
-import { Language } from "../localization/Language";
+import { buildLocalization } from "../localization/Localization";
+
+const localization = buildLocalization({
+    description: {
+        ['ENG']: "Lets you throw a dice. Virtually. Select required amount and mention serrver memebers you want to compete with.",
+        ['RU']: 'Позволяет вам бросить кость. Виртуальную, разумеется. Выберете количество бросков и упомяните тех, с кем хотите посоревноваться.'
+    },
+    tooManyRolls: {
+        ['ENG']: "Cannot roll dice more than 100 times, overload!",
+        ['RU']: 'Нельзя бросить больше, чем 100 раз!'
+    },
+    results: {
+        ['ENG']: "Dice throwing results:",
+        ['RU']: 'Результаты бросания кости:'
+    }
+});
 
 export class RollCommand implements Command {
     name = 'roll';
-    description = localizedStringBuilder({
-        ['ENG']: "Lets you throw a dice. Virtually.",
-        ['RU']: 'Позволяет вам бросить кость. Виртуальную, разумеется.'
-    });
+    description = localization.description;
 
     argumentsMap = build([optional('amount'), mention().optional()]);
     invoke(context: GuildContext, amount: string) {
         const rollAmount = parseInt(amount) || 1;
         if (rollAmount > 100) {
-            throw new Error('Cannot roll dice more than 100 times, overload!');
+            throw new Error(localization.tooManyRolls());
         }
 
         const userMentions = context.mentions.users.size > 0 ? Array.from(context.mentions.users.values()) : [context.author];
@@ -27,7 +38,7 @@ export class RollCommand implements Command {
         setTimeout(() => {
             context.channel.stopTyping();
             const respose = rolls.map(roll => `${toMention(roll.user)}, ${this.formatRollValues(roll.values)}`);
-            context.channel.send(['Dice throwing results:', ...respose]);
+            context.channel.send([localization.results, ...respose]);
         }, 3000);
     }
 

@@ -6,15 +6,11 @@ import config from '.././config.json';
 import { isAggregateCommand } from "../AggregateCommand";
 import { flatten } from "../common/ArrayHelpers";
 import { bold, italic, code } from "../common/DiscordFormattingHelpers";
-import { localizedStringBuilder } from "../localization/LocalizedString";
-import { Language } from "../localization/Language";
+import { localization } from "./HelpCommandLocalization";
 
 export class HelpCommand implements Command {
     name = 'help';
-    description = localizedStringBuilder({
-        ['ENG']: 'Provides information about available commands.',
-        ['RU']: 'Дает информацию о доступных командах.'
-    });
+    description = localization.description;
 
     argumentsMap = build([optional('commandName')]);
 
@@ -23,7 +19,7 @@ export class HelpCommand implements Command {
 
             const targetCommand = registeredCommands.find(c => c.name === commandName);
             if (!targetCommand) {
-                context.channel.send(`Cannot find the command you've just requested! (${commandName})`);
+                context.channel.send(`${localization.commandNotFound()} (${commandName})`);
             }
             else {
                 context.channel.send([
@@ -34,7 +30,7 @@ export class HelpCommand implements Command {
         }
         else {
             context.channel.send([
-                `Available commands:`,
+                localization.availableCommands(),
                 ...flatten(registeredCommands.map(c => buildCommandShortDescription(c)))
             ])
         }
@@ -44,7 +40,7 @@ export class HelpCommand implements Command {
 function buildCommandShortDescription(command: Command): string[] {
     return [
         bold(command.name),
-        italic(command.description() ?? 'This command has no description')
+        italic(command.description() ?? localization.noDescription())
     ]
 }
 
@@ -58,25 +54,25 @@ function buildCommandFullDescription(command: Command): string[] {
 function buildCommandUsageDescription(command: Command): string[] {
     if (isAggregateCommand(command)) {
         return [
-            `This is a complex command! Available sub commands to run:`,
+            localization.complexCommand(),
             ...flatten(command.subCommands.map(c => buildCommandShortDescription(c))).map(d => `    ${d}`),
-            `To get help for specific command, run ${code(`${config.botPrefix} help ${command.name} <sub command name>`)}, for ex. ${code(`${config.botPrefix} help ${command.name} ${command.subCommands[0].name}`)}`
+            localization.complexCommandHint(config.prefix, command.name, command.subCommands[0].name)
         ]
     }
     else {
-        return [`Usage: ${code(formatArgumentsUsageHint(command))}`];
+        return [`${localization.usage()} ${code(formatArgumentsUsageHint(command))}`];
     }
 }
 
 function formatArgumentsUsageHint({ name, argumentsMap }: Command) {
-    return `${config.botPrefix} ${name} ${argumentsMap.map(a => `<${getArgumentName(a)}${getArgumentType(a)}>`).join(' ')}`;
+    return `${config.prefix} ${name} ${argumentsMap.map(a => `<${getArgumentName(a)}${getArgumentType(a)}>`).join(' ')}`;
 }
 
 function getArgumentName(arg: CommandArgumentMetadata) {
-    return arg.type === CommandArgumentType.mentions ? 'mentions' : arg.name ?? arg.index;
+    return arg.type === CommandArgumentType.mentions ? localization.mentions() : arg.name ?? arg.index;
 }
 
 function getArgumentType(arg: CommandArgumentMetadata) {
-    return arg.isRequired ? ':required' : ':optional';
+    return arg.isRequired ? `:${localization.required()}` : `:${localization.optional()}`;
 }
 
