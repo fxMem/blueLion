@@ -1,6 +1,6 @@
 import { InvocationContext } from "./CommandInfo";
 import { Command, invokeCommand } from "./Command";
-import { DiscordContext } from "./discord/DiscordContext";
+import { GuildContext } from "./discord/GuildContext";
 import { CommandArgumentType, CommandArgumentMetadata, resolveArguments } from "./CommandArgumentsMap";
 
 export class CommandManager {
@@ -15,7 +15,7 @@ export class CommandManager {
         this.commandsLookup = commands.reduce((acc, next) => ({ ...acc, [next.name]: next }), {});
     }
 
-    invoke(invoicationContext: InvocationContext, discordContext: DiscordContext): void {
+    invoke(invoicationContext: InvocationContext, discordContext: GuildContext): void {
 
         const targetCommand = this.commandsLookup[invoicationContext.name];
         if (!targetCommand) {

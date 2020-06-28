@@ -1,5 +1,5 @@
 import { Command } from "../Command";
-import { DiscordContext } from "../discord/DiscordContext";
+import { GuildContext } from "../discord/GuildContext";
 import { build, optional, mention } from "../CommandArgumentsMap";
 import { getRandomIntFromInterval } from "../common/Random";
 import { toMention } from "../common/MentionHelper";
@@ -15,7 +15,7 @@ export class RollCommand implements Command {
     });
 
     argumentsMap = build([optional('amount'), mention().optional()]);
-    invoke(context: DiscordContext, amount: string) {
+    invoke(context: GuildContext, amount: string) {
         const rollAmount = parseInt(amount) || 1;
         if (rollAmount > 100) {
             throw new Error('Cannot roll dice more than 100 times, overload!');

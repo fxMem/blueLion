@@ -2,7 +2,7 @@ import { Command } from "../Command";
 import { localizedStringBuilder } from "../localization/LocalizedString";
 import { Language, setCurrentLanguage, allLanguages } from "../localization/Language";
 import { build, required } from "../CommandArgumentsMap";
-import { DiscordContext } from "../discord/DiscordContext";
+import { GuildContext } from "../discord/GuildContext";
 import { bold } from "../common/DiscordFormattingHelpers";
 import { AggregateCommandBase } from "../AggregateCommandBase";
 
@@ -27,7 +27,7 @@ class GetLanguagesCommand implements Command {
     });
 
     argumentsMap = [];
-    invoke(context: DiscordContext): void {
+    invoke(context: GuildContext): void {
         context.channel.send(`Available languages are: ${bold(allLanguages.join(', '))}`);
     }
 }

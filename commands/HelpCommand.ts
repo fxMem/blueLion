@@ -1,6 +1,6 @@
 import { Command } from "../Command";
 import { optional, build, CommandArgumentMetadata, CommandArgumentType } from "../CommandArgumentsMap";
-import { DiscordContext } from "../discord/DiscordContext";
+import { GuildContext } from "../discord/GuildContext";
 import { registeredCommands } from "../RegisteredCommands";
 import config from '.././config.json';
 import { isAggregateCommand } from "../AggregateCommand";
@@ -18,7 +18,7 @@ export class HelpCommand implements Command {
 
     argumentsMap = build([optional('commandName')]);
 
-    invoke(context: DiscordContext, commandName: string) {
+    invoke(context: GuildContext, commandName: string) {
         if (commandName) {
 
             const targetCommand = registeredCommands.find(c => c.name === commandName);
