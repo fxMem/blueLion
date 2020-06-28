@@ -11,7 +11,7 @@ export class CommandParser {
     }
 
     parse(message: string): InvocationContext {
-        const commandStringPrefix = this.config.botPrefix + ' ';
+        const commandStringPrefix = this.config.prefix + ' ';
         if (!message.startsWith(commandStringPrefix)) {
             return null;
         }
