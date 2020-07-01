@@ -1,6 +1,6 @@
 import { KeyValueStorage } from "./KeyValueStorage";
 import { GuildContext } from "../discord/GuildContext";
-import { RequiresGuildInitialization, registerForGuildInitialization } from "../GuildBootstrapper";
+import { RequiresGuildInitialization, registerForGuildInitialization, GuildInitializerResult } from "../GuildBootstrapper";
 import config from '../config.json';
 import { TextChannel, Message, Snowflake, Collection } from "discord.js";
 import { tryCreateCategory, tryCreateTextChannel } from "../common/ChannelsHelper";
@@ -173,4 +173,4 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
     }
 }
 
-export const globalStorage = registerForGuildInitialization(new ChannelStorage('global'));
+export const globalStorage = registerForGuildInitialization(new ChannelStorage('global')) as GuildInitializerResult<KeyValueStorage>;
