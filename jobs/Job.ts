@@ -18,6 +18,7 @@ export type JobState<TUserJobState> = {
 export interface AbstractJob extends RequiresGuildInitialization {
     name: string;
     run(): Promise<Date>;
+    getState(context: GuildContext): Promise<JobRunningInfo>;
 }
 
 export abstract class Job<TUserJobState> implements AbstractJob {
@@ -32,7 +33,7 @@ export abstract class Job<TUserJobState> implements AbstractJob {
     initializeGuild(context: GuildContext): Promise<void> {
         return this.updateState(context).then(() => {
             if (!this.state) {
-                this.saveState(null);
+                return this.saveState(null, context).then(_ => { });
             }
         });
     }
@@ -41,20 +42,28 @@ export abstract class Job<TUserJobState> implements AbstractJob {
         return this.updateState(this.context).then(_ => {
             return this.runInternal(this.state.userState);
         }).then(updatedState => {
-            return this.saveState(updatedState);
+            return this.saveState(updatedState, this.context);
+        });
+    }
+
+    getState(context: GuildContext) {
+        return globalStorage.ensure(context).then(storage => {
+            return storage.get<JobState<TUserJobState>>(this.getStateStorageKey(), this.parseState.bind(this));
         });
     }
 
     abstract runInternal(state: TUserJobState): Promise<TUserJobState>;
 
-    private saveState(userState: TUserJobState) {
-        return globalStorage.ensure(this.context).then(storage => {
+    private saveState(userState: TUserJobState, context: GuildContext): Promise<Date> {
+        return globalStorage.ensure(context).then(storage => {
             const nextRun = this.calculateNextRunDate();
             return storage.set(this.getStateStorageKey(), {
                 previousRunDate: new Date(),
                 runAfter: nextRun,
                 userState
-            }).then(() => nextRun);
+            }).then(() => {
+                return nextRun;
+            });
         })
     }
 

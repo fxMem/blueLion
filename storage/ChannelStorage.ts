@@ -113,31 +113,35 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
         });
     }
 
-    private addNew(key: string, value: any) {
-        let id: Snowflake = null;
-        
-        // Sending message with value and only after that updating pins lookup is important. It ensures
-        // that data will be present in case of network problem. Worst case is we'll lose the pin update and end up
-        // with 'trash' value messages not linked to any pin. TODO: add some sort of cleaning routine 
-        // to detect and remove such messages.
-        this.channel.send(this.buildMessageToStore(key, value)).then(message => {
-            id = message.id;
-            return this.channel.messages.fetchPinned(true);
-        }).then(pins => {
-
-            const freePin = pins.find(p => p.content.length + getRequiredSpace(p.id) < messageCharactersLimit);
-            return freePin
-                ? update(freePin)
-                : allocateNew();
-        });
-
+    private addNew(key: string, value: any): Promise<void> {
         const getRequiredSpace = (pinId: Snowflake) => JSON.stringify(this.buildKeyRef(pinId, id, key)).length + 10;
-        const update = (pin: Message): Promise<any> => this.updatePin(pin, refs => [...refs, this.buildKeyRef(pin.id, id, key)]);
+        const update = (pin: Message): Promise<Message> => this.updatePin(pin, refs => [...refs, this.buildKeyRef(pin.id, id, key)]);
         const allocateNew = () => this.channel.send(JSON.stringify([])).then(message => {
             return message.pin();
         }).then(pin => {
             this.pins.push(pin.id);
             return update(pin);
+        });
+
+        let id: Snowflake = null;
+
+        // Sending message with value and only after that updating pins lookup is important. It ensures
+        // that data will be present in case of network problem. Worst case is we'll lose the pin update and end up
+        // with 'trash' value messages not linked to any pin. TODO: add some sort of cleaning routine 
+        // to detect and remove such messages.
+        return this.channel.send(this.buildMessageToStore(key, value)).then(message => {
+            id = message.id;
+            return this.channel.messages.fetchPinned(true);
+        }).then(pins => {
+
+            const freePin = pins.find(p => p.content.length + getRequiredSpace(p.id) < messageCharactersLimit);
+            const pin = freePin
+                ? update(freePin)
+                : allocateNew();
+
+            return pin.then(p => {
+                this.lookup[key] = { id, pinId: p.id };
+            });
         });
     }
 
@@ -162,7 +166,7 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
     private buildMessageToStore(key: string, value: any): string {
         return JSON.stringify({
             id: key,
-            value
+            value: JSON.stringify(value)
         } as StoredData);
     }
 

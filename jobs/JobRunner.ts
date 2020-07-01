@@ -4,6 +4,7 @@ import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitia
 import { allJobs } from "./JobRegistrator";
 import { getStateStorageKey, JobRunningInfo, AbstractJob } from "./Job";
 import { createLocalLogScope } from "../log/LogScopes";
+import { registeredJobs } from "../RegisteredJobs";
 
 type JobInfo = {
     info: JobRunningInfo,
@@ -16,21 +17,21 @@ export class JobRunner implements RequiresGuildInitialization {
     sortedJobs: JobInfo[];
 
     initializeGuild(context: GuildContext): Promise<void> {
-        return globalStorage.ensure(context).then(storage => {
-            const jobStates = allJobs.map(job => {
-                const storageKey = getStateStorageKey(job.name);
-                return storage.get<JobRunningInfo>(storageKey).then(info => ({
-                    info,
-                    job
-                }));
-            });
-            return Promise.all(jobStates);
-        }).then(jobs => {
-            this.sortedJobs = this.sortJobQueue(jobs);
-            this.logger.info(`Loaded jobs: ${this.sortedJobs.map(j => j.job.name).join(', ')}`);
+        return Promise.all(registeredJobs.map(j => j.ensure(context)))
+            .then(_ => {
+                const jobStates = allJobs.map(job => {
+                    return  job.getState(context).then(info => ({
+                        info,
+                        job
+                    }));
+                });
+                return Promise.all(jobStates);
+            }).then(jobs => {
+                this.sortedJobs = this.sortJobQueue(jobs);
+                this.logger.info(`Loaded jobs: ${this.sortedJobs.map(j => j.job.name).join(', ')}`);
 
-            this.enqueueNextJob();
-        });
+                this.enqueueNextJob();
+            });
     }
 
     private enqueueNextJob() {

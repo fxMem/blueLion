@@ -6,6 +6,8 @@ import { CommandParser } from './commands/CommandParser';
 import { runGuildInitializers } from './bootstrapper/GuildBootstrapper';
 import { initializeLogger, createLocalLogScope, enterGlobalLogScope } from './log/LogScopes';
 import { DefaultConsoleLogger, Log } from './log/Logger';
+import { registeredJobs } from './RegisteredJobs';
+import { JobRunner } from './jobs/JobRunner';
 
 initializeLogger(new Log([new DefaultConsoleLogger()]));
 const log = enterGlobalLogScope('Root');
@@ -44,3 +46,6 @@ client.on('message', message => {
 });
 
 client.login(config.token);
+
+// Registering jobs
+registeredJobs[registeredJobs.length - 1].chain(new JobRunner());
