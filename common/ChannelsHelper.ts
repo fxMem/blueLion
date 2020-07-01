@@ -34,7 +34,7 @@ export function tryCreateTextChannel({ guild, name, hidden, parent }: {
     hidden?: boolean,
     parent?: Snowflake
 }): Promise<TextChannel> {
-    const existingChannel = tryFindChannel(guild, name);
+    const existingChannel = tryFindChannel(guild, name, parent);
     if (existingChannel && existingChannel.parentID === parent) {
         if (existingChannel.type !== 'text') {
             throw new Error(`Incorrect assertion: channel ${name} is supposed to be text channel!`);
@@ -52,6 +52,6 @@ export function tryCreateTextChannel({ guild, name, hidden, parent }: {
     });
 }
 
-function tryFindChannel(guild: Guild, name: string) {
-    return guild.channels.cache.find(c => c.name === name);
+function tryFindChannel(guild: Guild, name: string, parentID?: string) {
+    return guild.channels.cache.find(c => c.name === name && (parentID === undefined || c.parentID === parentID));
 }
