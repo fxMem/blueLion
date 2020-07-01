@@ -1,6 +1,7 @@
 import { Command } from "../Command";
 import { GuildContext } from "../discord/GuildContext";
 import { buildLocalization } from "../localization/Localization";
+import { CommandBase } from "../CommandBase";
 
 const localization = buildLocalization({
     description: {
@@ -13,12 +14,12 @@ const localization = buildLocalization({
     }
 })
 
-export class HiCommand implements Command {
+export class HiCommand extends CommandBase {
     name = 'hi';
     description = localization.description;
 
     argumentsMap = [];
-    invoke(context: GuildContext) {
-        context.reply(localization.hi());
+    doInvoke() {
+        this.context.reply(localization.hi(this.currentLanguage));
     }
 }

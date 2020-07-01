@@ -1,10 +1,11 @@
-import { defaulLanguage, getCurrentLanguage } from "./Language";
+import { defaulLanguage, Language } from "./Language";
 import { LocalizationData, LocalizationConfig } from "./Localization";
+import { GuildContext } from "../discord/GuildContext";
 
-export type LocalizedString = (...parameters: string[]) => string;
+export type LocalizedString = (language: Language, ...parameters: string[]) => string;
 
 export function localizedStringBuilder(name: LocalizationData): LocalizedString {
-    return (...parameters: string[]) => format(name[getCurrentLanguage()] ?? name[defaulLanguage], parameters);
+    return (language: Language, ...parameters: string[]) => format(name[language] ?? name[defaulLanguage], parameters);
 }
 
 // trimmed version of https://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format/4673436#4673436

@@ -3,6 +3,7 @@ import { createLocalLogScope } from "./log/LogScopes";
 import { PromiseSource, createPromiseSource } from "./common/PromiseSource";
 
 export type RequiresGuildInitialization = {
+    context?: GuildContext;
     initializeGuild: GuildInitializationCallback;
 }
 
@@ -24,7 +25,7 @@ function isRequiresGuildInitialization(argument: RequiresGuildInitialization | G
 
 export type GuildInitializerResult<T> = {
     // Returned promise is resolved when iniitializer had run for the guild
-    ensure(guildInfo: string | GuildContext): Promise<T>,
+    ensure(context: GuildContext): Promise<T>,
 
     // Registers dependent initializer, which will run after this one
     chain<TNext extends GuildInitializer>(subscriber: TNext): GuildInitializerResult<TNext>;
@@ -42,7 +43,13 @@ export function registerForGuildInitialization<T extends GuildInitializer>(subsc
 
     subscribers.push(data);
     return {
-        ensure: (guildId: string) => getInitializationDataForGuild(guildId, data).promise.then(() => subscriber),
+        ensure: (context: GuildContext) => getInitializationDataForGuild(context, data).promise.then(() => { 
+            if (isRequiresGuildInitialization(subscriber)) {
+                subscriber.context = context; 
+            }
+
+            return subscriber;
+        }),
         chain: <TNext extends GuildInitializer>(initializer: TNext) => {
             // Invoking the dependant initializer after this one we ensure that dependant is added to subscribers array after this one,
             // hence preservicng the rigth order
@@ -51,8 +58,8 @@ export function registerForGuildInitialization<T extends GuildInitializer>(subsc
     };
 }
 
-function getInitializationDataForGuild(guildInfo: string | GuildContext, subscriber: InitializationData) {
-    const guildId = typeof guildInfo === 'string' ? guildInfo : guildInfo.guild.id;
+function getInitializationDataForGuild(context: GuildContext, subscriber: InitializationData) {
+    const guildId = context.guild.id;
     return subscriber.promises[guildId] || (subscriber.promises[guildId] = createPromiseSource<void>());
 }
 
@@ -76,7 +83,7 @@ export function runGuildInitializers(context: GuildContext): Promise<void> {
                 return;
             }
 
-            const promiseSourceForGuild = getInitializationDataForGuild(guildId, subscriber);
+            const promiseSourceForGuild = getInitializationDataForGuild(context, subscriber);
             if (promiseSourceForGuild.done) {
                 // Initializer for this guild had already been run before. This shouldn't normally happen
                 // as we use initializationResults to track such cases
@@ -84,6 +91,7 @@ export function runGuildInitializers(context: GuildContext): Promise<void> {
             }
 
             subscriber.callback(context).then(() => {
+                promiseSourceForGuild.resolve();
                 initializeNextInChain(getNextSubscriber());
             }).catch((e) => {
                 promiseSourceForGuild.reject(e);
@@ -92,7 +100,7 @@ export function runGuildInitializers(context: GuildContext): Promise<void> {
 
 
             function initializationFinished() {
-                const error = promiseSourceForGuild.error;
+                const error = promiseSourceForGuild?.error;
                 initializationResults[guildId] = {};
                 if (error) {
                     log.fatal(`Guild [${context.guild.name}] initialization failed! Error: ${error}`);

@@ -6,11 +6,11 @@ import { LocalizedString } from "./localization/LocalizedString";
 export interface Command {
     name: string;
     description?: LocalizedString;
-    invoke(context: GuildContext, ...args: (string | CommandArgument[])[]): void;
+    invoke(context: GuildContext, ...args: (string | CommandArgument[])[]): Promise<void> | void;
     argumentsMap: CommandArgumentMetadata[];
 }
 
-export function invokeCommand(command: Command, providedArguments: CommandArgument[], discordContext: GuildContext) {
+export function invokeCommand(command: Command, providedArguments: CommandArgument[], discordContext: GuildContext): Promise<void> | void {
     const args = resolveArguments(providedArguments, command.argumentsMap);
-    command.invoke.apply(command, [discordContext, ...args]);
+    return command.invoke.apply(command, [discordContext, ...args]);
 }

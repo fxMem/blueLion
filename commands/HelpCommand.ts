@@ -7,72 +7,73 @@ import { isAggregateCommand } from "../AggregateCommand";
 import { flatten } from "../common/ArrayHelpers";
 import { bold, italic, code } from "../common/DiscordFormattingHelpers";
 import { localization } from "./HelpCommandLocalization";
+import { CommandBase } from "../CommandBase";
+import { Language } from "../localization/Language";
 
-export class HelpCommand implements Command {
+export class HelpCommand extends CommandBase {
     name = 'help';
     description = localization.description;
 
     argumentsMap = build([optional('commandName')]);
 
-    invoke(context: GuildContext, commandName: string) {
+    doInvoke(commandName: string) {
         if (commandName) {
 
             const targetCommand = registeredCommands.find(c => c.name === commandName);
             if (!targetCommand) {
-                context.channel.send(`${localization.commandNotFound()} (${commandName})`);
+                this.context.channel.send(`${localization.commandNotFound(this.currentLanguage)} (${commandName})`);
             }
             else {
-                context.channel.send([
-                    ...buildCommandFullDescription(targetCommand)
-                ]
-                )
+                this.context.channel.send([
+                    ...buildCommandFullDescription(targetCommand, this.currentLanguage)
+                ])
             }
         }
         else {
-            context.channel.send([
-                localization.availableCommands(),
-                ...flatten(registeredCommands.map(c => buildCommandShortDescription(c)))
+            this.context.channel.send([
+                localization.availableCommands(this.currentLanguage),
+                ...flatten(registeredCommands.map(c => buildCommandShortDescription(c, this.currentLanguage)))
             ])
         }
     }
 }
 
-function buildCommandShortDescription(command: Command): string[] {
+function buildCommandShortDescription(command: Command, language: Language): string[] {
     return [
         bold(command.name),
-        italic(command.description() ?? localization.noDescription())
+        italic(command.description(language) ?? localization.noDescription(language))
     ]
 }
 
-function buildCommandFullDescription(command: Command): string[] {
+function buildCommandFullDescription(command: Command, language: Language): string[] {
     return [
-        ...buildCommandShortDescription(command),
-        ...buildCommandUsageDescription(command)
+        ...buildCommandShortDescription(command, language),
+        ...buildCommandUsageDescription(command, language)
     ]
 }
 
-function buildCommandUsageDescription(command: Command): string[] {
+function buildCommandUsageDescription(command: Command, language: Language): string[] {
     if (isAggregateCommand(command)) {
         return [
-            localization.complexCommand(),
-            ...flatten(command.subCommands.map(c => buildCommandShortDescription(c))).map(d => `    ${d}`),
-            localization.complexCommandHint(config.prefix, command.name, command.subCommands[0].name)
+            localization.complexCommand(language),
+            ...flatten(command.subCommands.map(c => buildCommandShortDescription(c, language))).map(d => `    ${d}`),
+            localization.complexCommandHint(language, config.prefix, command.name, command.subCommands[0].name)
         ]
     }
     else {
-        return [`${localization.usage()} ${code(formatArgumentsUsageHint(command))}`];
+        return [`${localization.usage(language)} ${code(formatArgumentsUsageHint(command, language))}`];
     }
 }
 
-function formatArgumentsUsageHint({ name, argumentsMap }: Command) {
-    return `${config.prefix} ${name} ${argumentsMap.map(a => `<${getArgumentName(a)}${getArgumentType(a)}>`).join(' ')}`;
+function formatArgumentsUsageHint({ name, argumentsMap }: Command, language: Language) {
+    return `${config.prefix} ${name} ${argumentsMap.map(a => `<${getArgumentName(a, language)}${getArgumentType(a, language)}>`).join(' ')}`;
 }
 
-function getArgumentName(arg: CommandArgumentMetadata) {
-    return arg.type === CommandArgumentType.mentions ? localization.mentions() : arg.name ?? arg.index;
+function getArgumentName(arg: CommandArgumentMetadata, language: Language) {
+    return arg.type === CommandArgumentType.mentions ? localization.mentions(language) : arg.name ?? arg.index;
 }
 
-function getArgumentType(arg: CommandArgumentMetadata) {
-    return arg.isRequired ? `:${localization.required()}` : `:${localization.optional()}`;
+function getArgumentType(arg: CommandArgumentMetadata, language: Language) {
+    return arg.isRequired ? `:${localization.required(language)}` : `:${localization.optional(language)}`;
 }
 

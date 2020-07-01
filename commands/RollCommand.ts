@@ -5,6 +5,7 @@ import { getRandomIntFromInterval } from "../common/Random";
 import { toMention } from "../common/MentionHelper";
 import { range } from "../common/Range";
 import { buildLocalization } from "../localization/Localization";
+import { CommandBase } from "../CommandBase";
 
 const localization = buildLocalization({
     description: {
@@ -21,15 +22,15 @@ const localization = buildLocalization({
     }
 });
 
-export class RollCommand implements Command {
+export class RollCommand extends CommandBase {
     name = 'roll';
     description = localization.description;
 
     argumentsMap = build([optional('amount'), mention().optional()]);
-    invoke(context: GuildContext, amount: string) {
+    doInvoke(context: GuildContext, amount: string) {
         const rollAmount = parseInt(amount) || 1;
         if (rollAmount > 100) {
-            throw new Error(localization.tooManyRolls());
+            throw new Error(localization.tooManyRolls(this.currentLanguage));
         }
 
         const userMentions = context.mentions.users.size > 0 ? Array.from(context.mentions.users.values()) : [context.author];

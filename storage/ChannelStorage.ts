@@ -26,7 +26,8 @@ type StoredData = {
 
 const messageCharactersLimit = 2000;
 
-class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
+export class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
+
     private channel: TextChannel;
     private lookup: { [key: string]: MessageRef };
     private pins: Snowflake[];
@@ -113,6 +114,10 @@ class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
     private addNew(key: string, value: any) {
         let id: Snowflake = null;
         
+        // Sending message with value and only after that updating pins lookup is important. It ensures
+        // that data will be present in case of network problem. Worst case is we'll lose the pin update and end up
+        // with 'trash' value messages not linked to any pin. TODO: add some sort of cleaning routine 
+        // to detect and remove such messages.
         this.channel.send(this.buildMessageToStore(key, value)).then(message => {
             id = message.id;
             return this.channel.messages.fetchPinned(true);
@@ -125,7 +130,7 @@ class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
         });
 
         const getRequiredSpace = (pinId: Snowflake) => JSON.stringify(this.buildKeyRef(pinId, id, key)).length + 10;
-        const update = (pin: Message): Promise<any> => this.updatePin(pin, refs => [...refs, this.buildKeyRef(pin.id, id, value)]);
+        const update = (pin: Message): Promise<any> => this.updatePin(pin, refs => [...refs, this.buildKeyRef(pin.id, id, key)]);
         const allocateNew = () => this.channel.send(JSON.stringify([])).then(message => {
             return message.pin();
         }).then(pin => {

@@ -15,13 +15,13 @@ export class CommandManager {
         this.commandsLookup = commands.reduce((acc, next) => ({ ...acc, [next.name]: next }), {});
     }
 
-    invoke(invoicationContext: InvocationContext, discordContext: GuildContext): void {
+    invoke(invoicationContext: InvocationContext, discordContext: GuildContext): Promise<void> | void {
 
         const targetCommand = this.commandsLookup[invoicationContext.name];
         if (!targetCommand) {
             throw new Error(`Cannot find a command with name ${invoicationContext.name}!`);
         }
 
-        invokeCommand(targetCommand, invoicationContext.arguments, discordContext);
+        return invokeCommand(targetCommand, invoicationContext.arguments, discordContext);
     }
 }

@@ -1,10 +1,13 @@
 import { Command } from "../Command";
-import { Language, setCurrentLanguage, allLanguages } from "../localization/Language";
+import { Language, allLanguages } from "../localization/Language";
 import { build, required } from "../CommandArgumentsMap";
 import { GuildContext } from "../discord/GuildContext";
 import { bold } from "../common/DiscordFormattingHelpers";
 import { AggregateCommandBase } from "../AggregateCommandBase";
 import { buildLocalization } from "../localization/Localization";
+import { globalStorage } from "../storage/ChannelStorage";
+import { languageManager } from "../localization/LanguageManager";
+import { CommandBase } from "../CommandBase";
 
 const localization = buildLocalization({
     description: {
@@ -39,26 +42,26 @@ export class LanguageCommand extends AggregateCommandBase {
     ];
 }
 
-class GetLanguagesCommand implements Command {
+class GetLanguagesCommand extends CommandBase {
     name = 'get';
     description = localization.getDescription;
 
     argumentsMap = [];
-    invoke(context: GuildContext): void {
-        context.channel.send(`${localization.availableLanguages()} ${bold(allLanguages.join(', '))}`);
+    doInvoke() {
+        return this.context.channel.send(`${localization.availableLanguages(this.currentLanguage)} ${bold(allLanguages.join(', '))}`).then(_ => {});
     }
 }
 
-class SetLanguageCommand implements Command {
+class SetLanguageCommand extends CommandBase {
     name = 'set';
     description = localization.setDescription;
 
     argumentsMap = build([required('language')]);
-    invoke(context: GuildContext, language: string): void {
+    doInvoke(language: string) {
         if (!allLanguages.find(l => l === language)) {
-            throw new Error(localization.unknownLanguage());
+            throw new Error(localization.unknownLanguage(this.currentLanguage));
         }
 
-        setCurrentLanguage(language as Language);
+        return this.languageManager.setCurrentLanguage(language as Language);
     }
 }
