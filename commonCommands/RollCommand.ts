@@ -1,11 +1,11 @@
-import { Command } from "../Command";
+import { Command } from "../commands/Command";
 import { GuildContext } from "../discord/GuildContext";
-import { build, optional, mention } from "../CommandArgumentsMap";
+import { build, optional, mention } from "../commands/CommandArgumentsMap";
 import { getRandomIntFromInterval } from "../common/Random";
 import { toMention } from "../common/MentionHelper";
 import { range } from "../common/Range";
 import { buildLocalization } from "../localization/Localization";
-import { CommandBase } from "../CommandBase";
+import { CommandBase } from "../commands/CommandBase";
 
 const localization = buildLocalization({
     description: {

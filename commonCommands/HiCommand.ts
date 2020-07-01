@@ -1,7 +1,7 @@
-import { Command } from "../Command";
+import { Command } from "../commands/Command";
 import { GuildContext } from "../discord/GuildContext";
 import { buildLocalization } from "../localization/Localization";
-import { CommandBase } from "../CommandBase";
+import { CommandBase } from "../commands/CommandBase";
 
 const localization = buildLocalization({
     description: {

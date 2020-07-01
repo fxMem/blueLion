@@ -1,7 +1,7 @@
-import { RequiresGuildInitialization } from "../GuildBootstrapper";
 import { GuildContext } from "../discord/GuildContext";
 import { globalStorage } from "../storage/ChannelStorage";
 import { Language, defaulLanguage } from "./Language";
+import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
 
 const storageLanguageKey = 'lang';
 let currentLanguage: Language = defaulLanguage;

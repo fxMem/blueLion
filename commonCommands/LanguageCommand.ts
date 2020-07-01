@@ -1,13 +1,13 @@
-import { Command } from "../Command";
+import { Command } from "../commands/Command";
 import { Language, allLanguages } from "../localization/Language";
-import { build, required } from "../CommandArgumentsMap";
+import { build, required } from "../commands/CommandArgumentsMap";
 import { GuildContext } from "../discord/GuildContext";
 import { bold } from "../common/DiscordFormattingHelpers";
-import { AggregateCommandBase } from "../AggregateCommandBase";
+import { AggregateCommandBase } from "../commands/AggregateCommandBase";
 import { buildLocalization } from "../localization/Localization";
 import { globalStorage } from "../storage/ChannelStorage";
 import { languageManager } from "../localization/LanguageManager";
-import { CommandBase } from "../CommandBase";
+import { CommandBase } from "../commands/CommandBase";
 
 const localization = buildLocalization({
     description: {

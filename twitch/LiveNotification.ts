@@ -1,6 +1,6 @@
-import { Command } from "../Command";
+import { Command } from "../commands/Command";
 import { GuildContext } from "../discord/GuildContext";
-import { build, required, mention } from "../CommandArgumentsMap";
+import { build, required, mention } from "../commands/CommandArgumentsMap";
 import { twitchLocalization } from "./TwitchLocalization";
 
 export class LiveNotification implements Command {

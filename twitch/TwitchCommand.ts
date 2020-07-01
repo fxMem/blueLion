@@ -1,4 +1,4 @@
-import { AggregateCommandBase } from "../AggregateCommandBase";
+import { AggregateCommandBase } from "../commands/AggregateCommandBase";
 import { LiveNotification } from "./LiveNotification";
 import { twitchLocalization } from "./TwitchLocalization";
 

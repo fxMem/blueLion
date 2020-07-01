@@ -1,9 +1,9 @@
 import { AggregateCommand } from "./AggregateCommand";
 import { Command, invokeCommand } from "./Command";
 import { CommandArgumentMetadata, required, build, optional } from "./CommandArgumentsMap";
-import { GuildContext } from "./discord/GuildContext";
+import { GuildContext } from "../discord/GuildContext";
 import { CommandArgument } from "./CommandArgument";
-import { LocalizedString } from "./localization/LocalizedString";
+import { LocalizedString } from "../localization/LocalizedString";
 import { CommandBase } from "./CommandBase";
 
 export class AggregateCommandBase implements AggregateCommand {

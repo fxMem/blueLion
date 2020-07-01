@@ -1,15 +1,15 @@
-import { Command } from "../Command";
-import { optional, build, CommandArgumentMetadata, CommandArgumentType } from "../CommandArgumentsMap";
+import { Command } from "../commands/Command";
+import { optional, build, CommandArgumentMetadata, CommandArgumentType } from "../commands/CommandArgumentsMap";
 import { GuildContext } from "../discord/GuildContext";
 import { registeredCommands } from "../RegisteredCommands";
-import config from '.././config.json';
-import { isAggregateCommand } from "../AggregateCommand";
+import config from '../config.json';
+import { isAggregateCommand } from "../commands/AggregateCommand";
 import { flatten } from "../common/ArrayHelpers";
 import { bold, italic, code } from "../common/DiscordFormattingHelpers";
 import { localization } from "./HelpCommandLocalization";
-import { CommandBase } from "../CommandBase";
+import { CommandBase } from "../commands/CommandBase";
 import { Language } from "../localization/Language";
-import { CommandArgument } from "../CommandArgument";
+import { CommandArgument } from "../commands/CommandArgument";
 
 export class HelpCommand extends CommandBase {
     name = 'help';

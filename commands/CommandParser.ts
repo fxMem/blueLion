@@ -1,6 +1,6 @@
 import { InvocationContext } from "./CommandInfo";
 import { CommandArgument } from "./CommandArgument";
-import { Config } from "./Config";
+import { Config } from "../Config";
 
 const correctCharsRegex = RegExp('^[a-zA-Z 0-9_!?<>@]*$');
 

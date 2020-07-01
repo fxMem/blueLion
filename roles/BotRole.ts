@@ -1,4 +1,4 @@
-import { registerForGuildInitialization } from "../GuildBootstrapper";
+import { registerForGuildInitialization } from "../bootstrapper/GuildBootstrapper";
 import { GuildContext } from "../discord/GuildContext";
 import config from '../config.json';
 import { hasRole, isRoleExists, getRoleByName } from "./RolesHelper";

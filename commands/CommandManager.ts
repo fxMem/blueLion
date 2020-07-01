@@ -1,6 +1,6 @@
 import { InvocationContext } from "./CommandInfo";
 import { Command, invokeCommand } from "./Command";
-import { GuildContext } from "./discord/GuildContext";
+import { GuildContext } from "../discord/GuildContext";
 import { CommandArgumentType, CommandArgumentMetadata, resolveArguments } from "./CommandArgumentsMap";
 
 export class CommandManager {

@@ -1,9 +1,9 @@
 import { Client } from 'discord.js'
 import config from './config.json';
-import { CommandManager } from './CommandManager';
+import { CommandManager } from './commands/CommandManager';
 import { registeredCommands } from './RegisteredCommands';
-import { CommandParser } from './CommandParser';
-import { runGuildInitializers } from './GuildBootstrapper';
+import { CommandParser } from './commands/CommandParser';
+import { runGuildInitializers } from './bootstrapper/GuildBootstrapper';
 import { initializeLogger, createLocalLogScope, enterGlobalLogScope } from './log/LogScopes';
 import { DefaultConsoleLogger, Log } from './log/Logger';
 

@@ -1,7 +1,7 @@
 import { CommandArgumentMetadata, resolveArguments } from "./CommandArgumentsMap";
-import { GuildContext } from "./discord/GuildContext";
+import { GuildContext } from "../discord/GuildContext";
 import { CommandArgument } from "./CommandArgument";
-import { LocalizedString } from "./localization/LocalizedString";
+import { LocalizedString } from "../localization/LocalizedString";
 
 export interface Command {
     name: string;

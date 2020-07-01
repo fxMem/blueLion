@@ -1,9 +1,10 @@
 import { KeyValueStorage } from "./KeyValueStorage";
 import { GuildContext } from "../discord/GuildContext";
-import { RequiresGuildInitialization, registerForGuildInitialization, GuildInitializerResult } from "../GuildBootstrapper";
+import { registerForGuildInitialization, GuildInitializerResult } from "../bootstrapper/GuildBootstrapper";
 import config from '../config.json';
 import { TextChannel, Message, Snowflake, Collection } from "discord.js";
 import { tryCreateCategory, tryCreateTextChannel } from "../common/ChannelsHelper";
+import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
 
 let setInitialized: () => void;
 const initialized = new Promise<void>((resolve, reject) => {

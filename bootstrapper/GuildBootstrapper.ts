@@ -1,15 +1,8 @@
-import { GuildContext } from "./discord/GuildContext";
-import { createLocalLogScope } from "./log/LogScopes";
-import { PromiseSource, createPromiseSource } from "./common/PromiseSource";
+import { GuildContext } from "../discord/GuildContext";
+import { createLocalLogScope } from "../log/LogScopes";
+import { PromiseSource, createPromiseSource } from "../common/PromiseSource";
+import { GuildInitializationCallback, RequiresGuildInitialization, GuildInitializer } from "./RequiresGuildInitialization";
 
-export type RequiresGuildInitialization = {
-    context?: GuildContext;
-    initializeGuild: GuildInitializationCallback;
-}
-
-export type GuildInitializationCallback = (context: GuildContext) => Promise<void>;
-
-export type GuildInitializer = RequiresGuildInitialization | GuildInitializationCallback;
 let initializationResults: { [guildId: string]: { error?: any } } = {};
 
 type InitializationData = {
@@ -19,7 +12,7 @@ type InitializationData = {
 }
 const subscribers: InitializationData[] = [];
 
-function isRequiresGuildInitialization(argument: RequiresGuildInitialization | GuildInitializationCallback): argument is RequiresGuildInitialization {
+function isRequiresGuildInitialization(argument: GuildInitializer): argument is RequiresGuildInitialization {
     return !!(argument as any).initializeGuild;
 }
 
@@ -43,9 +36,9 @@ export function registerForGuildInitialization<T extends GuildInitializer>(subsc
 
     subscribers.push(data);
     return {
-        ensure: (context: GuildContext) => getInitializationDataForGuild(context, data).promise.then(() => { 
+        ensure: (context: GuildContext) => getInitializationDataForGuild(context, data).promise.then(() => {
             if (isRequiresGuildInitialization(subscriber)) {
-                subscriber.context = context; 
+                subscriber.context = context;
             }
 
             return subscriber;
@@ -57,12 +50,6 @@ export function registerForGuildInitialization<T extends GuildInitializer>(subsc
         }
     };
 }
-
-function getInitializationDataForGuild(context: GuildContext, subscriber: InitializationData) {
-    const guildId = context.guild.id;
-    return subscriber.promises[guildId] || (subscriber.promises[guildId] = createPromiseSource<void>());
-}
-
 
 export function runGuildInitializers(context: GuildContext): Promise<void> {
     const guildId = context.guild.id;
@@ -118,4 +105,9 @@ export function runGuildInitializers(context: GuildContext): Promise<void> {
             return subscribers[currentSubscriberIndex++];
         }
     });
+}
+
+function getInitializationDataForGuild(context: GuildContext, subscriber: InitializationData) {
+    const guildId = context.guild.id;
+    return subscriber.promises[guildId] || (subscriber.promises[guildId] = createPromiseSource<void>());
 }
