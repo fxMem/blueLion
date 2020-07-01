@@ -22,7 +22,7 @@ type MessageRef = {
 
 type StoredData = {
     id: string,
-    value: any
+    value: string
 };
 
 const messageCharactersLimit = 2000;
@@ -56,7 +56,8 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
             });
     }
 
-    get(key: string): Promise<any> {
+    get<T>(key: string, reviver?: (data: string) => T): Promise<T> {
+        reviver = reviver || JSON.parse;
         return initialized.then(() => {
             const ref = this.lookup[key];
             if (!ref) {
@@ -69,7 +70,7 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
                     throw new Error(`Possible data corruption for stored key ${key}`);
                 }
 
-                return data.value;
+                return reviver(data.value);
             });
         })
     }

@@ -11,7 +11,7 @@ export class LanguageManager implements RequiresGuildInitialization {
 
     initializeGuild(context: GuildContext): Promise<void> {
         return globalStorage.ensure(context).then(storage => {
-            return storage.get(storageLanguageKey).then(language => ({ language, storage }));
+            return storage.get<Language>(storageLanguageKey).then(language => ({ language, storage }));
         }).then(({ language, storage }) => {
             if (language) {
                 currentLanguage = language;
