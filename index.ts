@@ -19,19 +19,19 @@ client.once('ready', () => {
     log.info('Bot is running!');
 
     client.user.setStatus('online');
-    client.user.setActivity("Universe", { type: 'PLAYING' });
+    client.user.setActivity(config.status, { type: 'LISTENING' });
 });
 
 client.on('message', message => {
 
     const { guild } = message;
-    log.info(`Incoming message from Guild ${guild.name}`);
-    runGuildInitializers(message).then(_ => {
-        const commandContext = commandParser.parse(message.content);
-        if (!commandContext) {
-            return;
-        }
+    const commandContext = commandParser.parse(message.content);
+    if (!commandContext) {
+        return;
+    }
 
+    log.info(`Message from Guild ${guild.name}: ${message.content}`);
+    runGuildInitializers(message).then(_ => {
         try {
             commandManager.invoke(commandContext, message);
         } catch (error) {
@@ -39,9 +39,7 @@ client.on('message', message => {
             message.reply(`Error! ${errorMessage}`);
         }
     }).catch(e => {
-
-        log.info(`Shutting down after initialization error`);
-        client.destroy();
+        log.info(`Initialization error! ${e}`);
     });
 });
 
