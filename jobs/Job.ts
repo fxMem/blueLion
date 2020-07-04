@@ -31,9 +31,10 @@ export abstract class Job<TUserJobState> implements AbstractJob {
     }
 
     initializeGuild(context: GuildContext): Promise<void> {
-        return this.updateState(context).then(() => {
+        this.context = context;
+        return this.updateState(this.context).then(() => {
             if (!this.state) {
-                return this.saveState(null, context).then(_ => { });
+                return this.saveState(null).then(_ => { });
             }
         });
     }
@@ -42,20 +43,20 @@ export abstract class Job<TUserJobState> implements AbstractJob {
         return this.updateState(this.context).then(_ => {
             return this.runInternal(this.state.userState);
         }).then(updatedState => {
-            return this.saveState(updatedState, this.context);
+            return this.saveState(updatedState);
         });
     }
 
-    getState(context: GuildContext) {
-        return globalStorage.ensure(context).then(storage => {
+    getState() {
+        return globalStorage.ensure(this.context).then(storage => {
             return storage.get<JobState<TUserJobState>>(this.getStateStorageKey(), this.parseState.bind(this));
         });
     }
 
     abstract runInternal(state: TUserJobState): Promise<TUserJobState>;
 
-    private saveState(userState: TUserJobState, context: GuildContext): Promise<Date> {
-        return globalStorage.ensure(context).then(storage => {
+    private saveState(userState: TUserJobState): Promise<Date> {
+        return globalStorage.ensure(this.context).then(storage => {
             const nextRun = this.calculateNextRunDate();
             return storage.set(this.getStateStorageKey(), {
                 previousRunDate: new Date(),

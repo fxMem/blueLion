@@ -8,6 +8,7 @@ import { initializeLogger, createLocalLogScope, enterGlobalLogScope } from './lo
 import { DefaultConsoleLogger, Log } from './log/Logger';
 import { registeredJobs } from './RegisteredJobs';
 import { JobRunner } from './jobs/JobRunner';
+import { buildClassInitializer } from './bootstrapper/RequiresGuildInitialization';
 
 initializeLogger(new Log([new DefaultConsoleLogger()]));
 const log = enterGlobalLogScope('Root');
@@ -22,30 +23,36 @@ client.once('ready', () => {
 
     client.user.setStatus('online');
     client.user.setActivity(config.status, { type: 'LISTENING' });
-});
 
-client.on('message', message => {
+    Promise.all(
+        client.guilds.cache.map(guild => runGuildInitializers({ guild }))
+    ).then(_ => {
+        client.on('message', message => {
 
-    const { guild } = message;
-    const commandContext = commandParser.parse(message.content);
-    if (!commandContext) {
-        return;
-    }
+            const { guild } = message;
+            const commandContext = commandParser.parse(message.content);
+            if (!commandContext) {
+                return;
+            }
 
-    log.info(`Message from Guild ${guild.name}: ${message.content}`);
-    runGuildInitializers(message).then(_ => {
-        try {
-            commandManager.invoke(commandContext, message);
-        } catch (error) {
-            const errorMessage = (error as Error).message;
-            message.reply(`Error! ${errorMessage}`);
-        }
+            log.info(`Message from Guild ${guild.name}: ${message.content}`);
+            try {
+                commandManager.invoke(commandContext, message);
+            } catch (error) {
+                const errorMessage = (error as Error).message;
+                message.reply(`Error! ${errorMessage}`);
+            }
+        });
     }).catch(e => {
-        log.info(`Initialization error! ${e}`);
-    });
+        log.error(`Initialization error! ${e}`);
+    });;
 });
+
 
 client.login(config.token);
 
 // Registering jobs
-registeredJobs[registeredJobs.length - 1].chain(new JobRunner());
+registeredJobs[registeredJobs.length - 1].chain(
+    buildClassInitializer(() => new JobRunner()),
+    'JobRunner'
+);

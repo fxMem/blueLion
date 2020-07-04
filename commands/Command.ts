@@ -2,11 +2,12 @@ import { CommandArgumentMetadata, resolveArguments } from "./CommandArgumentsMap
 import { GuildContext } from "../discord/GuildContext";
 import { CommandArgument } from "./CommandArgument";
 import { LocalizedString } from "../localization/LocalizedString";
+import { MessageContext } from "../discord/MessageContext";
 
 export interface Command {
     name: string;
     description?: LocalizedString;
-    invoke(context: GuildContext, ...args: (string | CommandArgument[])[]): Promise<void> | void;
+    invoke(context: MessageContext, ...args: (string | CommandArgument[])[]): Promise<void> | void;
     argumentsMap: CommandArgumentMetadata[];
 }
 

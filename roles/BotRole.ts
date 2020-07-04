@@ -9,7 +9,7 @@ export const botRoleName = `${config.name}Bot`;
 registerForGuildInitialization((context: GuildContext) => {
     const { guild } = context;
     return tryCreateBotRole(guild).then(role => tryAddBotToItsRole(guild, role));
-});
+}, `Create ${botRoleName} role!`);
 
 function tryCreateBotRole(guild: Guild): Promise<Role> {
     const serverBotRole = getRoleByName(guild.roles, botRoleName);

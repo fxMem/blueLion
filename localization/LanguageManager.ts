@@ -1,7 +1,7 @@
 import { GuildContext } from "../discord/GuildContext";
 import { globalStorage } from "../storage/ChannelStorage";
 import { Language, defaulLanguage } from "./Language";
-import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
+import { RequiresGuildInitialization, buildClassInitializer } from "../bootstrapper/RequiresGuildInitialization";
 
 const storageLanguageKey = 'lang';
 let currentLanguage: Language = defaulLanguage;
@@ -10,6 +10,7 @@ export class LanguageManager implements RequiresGuildInitialization {
     context: GuildContext;
 
     initializeGuild(context: GuildContext): Promise<void> {
+        this.context = context;
         return globalStorage.ensure(context).then(storage => {
             return storage.get<Language>(storageLanguageKey).then(language => ({ language, storage }));
         }).then(({ language, storage }) => {
@@ -32,4 +33,4 @@ export class LanguageManager implements RequiresGuildInitialization {
     }
 }
 
-export const languageManager = globalStorage.chain(new LanguageManager());
+export const languageManager = globalStorage.chain(buildClassInitializer(() => new LanguageManager()), 'LanguageManager');

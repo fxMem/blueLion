@@ -1,7 +1,7 @@
 import { GuildContext } from "../discord/GuildContext";
 import { globalStorage } from "../storage/ChannelStorage";
 import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
-import { allJobs } from "./JobRegistrator";
+//import { allJobs } from "./JobRegistrator";
 import { getStateStorageKey, JobRunningInfo, AbstractJob } from "./Job";
 import { createLocalLogScope } from "../log/LogScopes";
 import { registeredJobs } from "../RegisteredJobs";
@@ -18,7 +18,7 @@ export class JobRunner implements RequiresGuildInitialization {
 
     initializeGuild(context: GuildContext): Promise<void> {
         return Promise.all(registeredJobs.map(j => j.ensure(context)))
-            .then(_ => {
+            .then(allJobs => {
                 const jobStates = allJobs.map(job => {
                     return  job.getState(context).then(info => ({
                         info,

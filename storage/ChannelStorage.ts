@@ -4,7 +4,7 @@ import { registerForGuildInitialization, GuildInitializerResult } from "../boots
 import config from '../config.json';
 import { TextChannel, Message, Snowflake, Collection } from "discord.js";
 import { tryCreateCategory, tryCreateTextChannel } from "../common/ChannelsHelper";
-import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
+import { RequiresGuildInitialization, registerClassInitializer } from "../bootstrapper/RequiresGuildInitialization";
 
 let setInitialized: () => void;
 const initialized = new Promise<void>((resolve, reject) => {
@@ -179,4 +179,4 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
     }
 }
 
-export const globalStorage = registerForGuildInitialization(new ChannelStorage('global')) as GuildInitializerResult<KeyValueStorage>;
+export const globalStorage = registerClassInitializer(() => new ChannelStorage('global'), 'ChannelStorage') as GuildInitializerResult<KeyValueStorage>;
