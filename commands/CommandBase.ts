@@ -1,8 +1,5 @@
-import { Command, invokeCommand } from "./Command";
-import { LocalizedString } from "../localization/LocalizedString";
-import { AggregateCommand } from "./AggregateCommand";
-import { build, required, optional, CommandArgumentMetadata } from "./CommandArgumentsMap";
-import { GuildContext } from "../discord/GuildContext";
+import { Command } from "./Command";
+import { CommandArgumentMetadata } from "./CommandArgumentsMap";
 import { Language } from "../localization/Language";
 import { languageManager, LanguageManager } from "../localization/LanguageManager";
 import { globalStorage } from "../storage/ChannelStorage";
@@ -25,11 +22,11 @@ export class CommandBase implements Command {
             return globalStorage.ensure(context);
         }).then(storage => {
             this.storage = storage;
-            this.doInvoke.apply(this, args);
-        })
+            return this.doInvoke.apply(this, args);
+        });
     }
 
-    doInvoke(...args: any[]) {
-
+    doInvoke(...args: any[]): Promise<void> | void {
+        // to overrride
     }
 }
