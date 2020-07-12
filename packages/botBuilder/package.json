@@ -1,0 +1,20 @@
+{
+  "name": "dbb",
+  "version": "1.0.0",
+  "description": "discord bot builder framework",
+  "scripts": {
+    "b": "tsc",
+    "r": "tsc && node distr/index.js",
+    "debug": "tsc && node distr/index.js",
+	"tsc": "tsc"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Mem",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  }
+}

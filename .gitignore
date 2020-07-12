@@ -1,3 +1,6 @@
 node_modules/
 distr/
+packages/botBuilder/lib/
+packages/botExample/lib/
+packages/commonCommands/lib/
 /config.json

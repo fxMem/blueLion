@@ -11,11 +11,12 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\distr\\index.js",
+            "program": "${workspaceFolder}\\packages\\botExample\\lib\\index.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
-            "runtimeArgs": ["--experimental-json-modules"]
+            "runtimeArgs": ["--experimental-json-modules"],
+            "sourceMaps": true,
         }
     ]
 }
