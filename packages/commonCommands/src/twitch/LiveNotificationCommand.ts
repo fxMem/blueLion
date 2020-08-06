@@ -1,8 +1,8 @@
 import { CommandBase, required, build, mention } from "dbb/lib/commands";
 import { twitchLocalization } from "./TwitchLocalization";
 
-const defaultNotifyToChannelKey = 'LiveNotification:notifyTo';
-export class LiveNotification extends CommandBase {
+const defaultNotifyToChannelKey = 'TwitchLiveNotification:notifyTo';
+export class LiveNotificationCommand extends CommandBase {
     name = 'notify';
     description = twitchLocalization.notifyCommandDescription;
 
