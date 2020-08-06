@@ -23,19 +23,19 @@ export class RollCommand extends CommandBase {
     description = localization.description;
 
     argumentsMap = build([optional('amount'), mention().optional()]);
-    doInvoke(context: MessageContext, amount: string) {
+    doInvoke(amount: string) {
         const rollAmount = parseInt(amount) || 1;
         if (rollAmount > 100) {
             throw new Error(localization.tooManyRolls(this.currentLanguage));
         }
 
-        const userMentions = context.mentions.users.size > 0 ? Array.from(context.mentions.users.values()) : [context.author];
+        const userMentions = this.context.mentions.users.size > 0 ? Array.from(this.context.mentions.users.values()) : [this.context.author];
         const rolls = userMentions.map(user => ({ user, values: range(rollAmount).map(_ => getRandomIntFromInterval(1, 6)) }));
-        context.channel.startTyping();
+        this.context.channel.startTyping();
         setTimeout(() => {
-            context.channel.stopTyping();
+            this.context.channel.stopTyping();
             const respose = rolls.map(roll => `${toMention(roll.user)}, ${this.formatRollValues(roll.values)}`);
-            context.channel.send([localization.results, ...respose]);
+            this.context.channel.send([localization.results(this.currentLanguage), ...respose]);
         }, 3000);
     }
 
