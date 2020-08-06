@@ -77,7 +77,6 @@ export function runGuildInitializers(context: GuildContext): Promise<void> {
                 initializationFinished();
             });
 
-
             function initializationFinished() {
                 const error = promiseSourceForGuild?.error;
                 initializationResults[guildId] = {};

@@ -1,7 +1,5 @@
 import { GuildContext } from "../discord/GuildContext";
-
 import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
-//import { allJobs } from "./JobRegistrator";
 import { getStateStorageKey, JobRunningInfo, AbstractJob } from "./Job";
 import { createLocalLogScope } from "../log/LogScopes";
 import { GuildInitializerResult } from "../bootstrapper/GuildBootstrapper";
@@ -14,6 +12,7 @@ type JobInfo = {
 };
 
 export class JobRunner implements RequiresGuildInitialization {
+    context: GuildContext;
     logger = createLocalLogScope('JobRunner');
     sortedJobs: JobInfo[];
 
@@ -24,11 +23,11 @@ export class JobRunner implements RequiresGuildInitialization {
 
     }
 
-    initializeGuild(context: GuildContext): Promise<void> {
-        return Promise.all(this.registeredJobs.map(j => j.ensure(context)))
+    initializeGuild(): Promise<void> {
+        return Promise.all(this.registeredJobs.map(j => j.ensure(this.context)))
             .then(allJobs => {
                 const jobStates = allJobs.map(job => {
-                    return job.getState(context).then(info => ({
+                    return job.getState(this.context).then(info => ({
                         info,
                         job
                     }));

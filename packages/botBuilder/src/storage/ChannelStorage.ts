@@ -29,7 +29,7 @@ const messageCharactersLimit = 2000;
 
 
 export class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
-
+    context: GuildContext;
     private channel: TextChannel;
     private lookup: { [key: string]: MessageRef };
     private pins: Snowflake[];
@@ -41,8 +41,8 @@ export class ChannelStorage implements KeyValueStorage, RequiresGuildInitializat
 
     }
 
-    initializeGuild(context: GuildContext): Promise<void> {
-        const { guild } = context;
+    initializeGuild(): Promise<void> {
+        const { guild } = this.context;
         if (!guild.available) {
             throw new Error(`Guild is not available!`);
         }

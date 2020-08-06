@@ -23,8 +23,8 @@ export interface AbstractJob extends RequiresGuildInitialization {
 }
 
 export abstract class Job<TUserJobState> implements AbstractJob {
-    name: string;
     context: GuildContext;
+    name: string;
     state: JobState<TUserJobState>;
 
     constructor(
@@ -33,20 +33,19 @@ export abstract class Job<TUserJobState> implements AbstractJob {
         private reviver?: (value: any) => TUserJobState) {
     }
 
-    initializeGuild(context: GuildContext): Promise<void> {
-        this.context = context;
-        return this.updateState(this.context).then(() => {
+    initializeGuild(): Promise<void> {
+        return this.updateState().then(() => {
             if (!this.state) {
-                return this.saveState(null).then(_ => { });
+                return this.updateTimeAndSaveState(null).then(_ => { });
             }
         });
     }
 
     run() {
-        return this.updateState(this.context).then(_ => {
+        return this.updateState().then(_ => {
             return this.runInternal(this.state.userState);
         }).then(updatedState => {
-            return this.saveState(updatedState);
+            return this.updateTimeAndSaveState(updatedState);
         });
     }
 
@@ -58,7 +57,7 @@ export abstract class Job<TUserJobState> implements AbstractJob {
 
     abstract runInternal(state: TUserJobState): Promise<TUserJobState>;
 
-    private saveState(userState: TUserJobState): Promise<Date> {
+    private updateTimeAndSaveState(userState: TUserJobState): Promise<Date> {
         return this.globalStorage.ensure(this.context).then(storage => {
             const nextRun = this.calculateNextRunDate();
             return storage.set(this.getStateStorageKey(), {
@@ -71,10 +70,8 @@ export abstract class Job<TUserJobState> implements AbstractJob {
         })
     }
 
-    private updateState(context: GuildContext) {
-        return this.globalStorage.ensure(context).then(storage => {
-            return storage.get<JobState<TUserJobState>>(this.getStateStorageKey(), this.parseState.bind(this));
-        }).then(previousState => {
+    private updateState() {
+        return this.getState().then(previousState => {
             this.state = previousState;
         });
     }
@@ -97,4 +94,3 @@ export abstract class Job<TUserJobState> implements AbstractJob {
         }) as JobState<TUserJobState>;
     }
 }
-
