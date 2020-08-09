@@ -4,13 +4,7 @@ import { GuildContext } from "../discord/GuildContext";
 import { hasRole, isRoleExists, getRoleByName } from "./RolesHelper";
 import { Guild, Role } from "discord.js";
 
-
 export const botRoleName = `Bot`;
-
-registerForGuildInitialization((context: GuildContext) => {
-    const { guild } = context;
-    return tryCreateBotRole(guild).then(role => tryAddBotToItsRole(guild, role));
-}, `Create ${botRoleName} role!`);
 
 function tryCreateBotRole(guild: Guild): Promise<Role> {
     const serverBotRole = getRoleByName(guild.roles, botRoleName);
