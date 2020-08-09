@@ -18,6 +18,6 @@ export class HiCommand extends CommandBase {
 
     argumentsMap = [];
     doInvoke() {
-        this.context.reply(localization.hi(this.currentLanguage));
+        this.commandContext.reply(localization.hi(this.currentLanguage));
     }
 }

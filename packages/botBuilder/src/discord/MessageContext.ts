@@ -3,6 +3,7 @@ import { GuildContext } from "./GuildContext";
 
 export type MessageContext = {
     author: User;
+    content: string;
     channel: TextChannel | DMChannel | NewsChannel;
     mentions: MessageMentions;
 

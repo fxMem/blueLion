@@ -41,7 +41,7 @@ class GetLanguagesCommand extends CommandBase {
 
     argumentsMap = [];
     doInvoke() {
-        return this.context.channel.send(`${localization.availableLanguages(this.currentLanguage)} ${bold(allLanguages.join(', '))}`).then(_ => {});
+        return this.commandContext.channel.send(`${localization.availableLanguages(this.currentLanguage)} ${bold(allLanguages.join(', '))}`).then(_ => {});
     }
 }
 

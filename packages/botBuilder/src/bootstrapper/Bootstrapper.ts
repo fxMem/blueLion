@@ -1,16 +1,21 @@
-import { Command, CommandManager, CommandParser } from "../commands";
+import { Command, CommandManager, CommandParser, CommandFactory } from "../commands";
 import { initializeLogger, Log, DefaultConsoleLogger, enterGlobalLogScope } from "../log";
 import { Client } from "discord.js";
-import { runGuildInitializers, registerClassInitializer, GuildInitializerResult, buildClassInitializer } from ".";
+import { runGuildInitializers, registerInitializer, GuildInitializerResult, buildClassInitializer, registerInitializers } from ".";
 import { Config } from "../Config";
 import { Job, JobFactory, registerJobs } from "../jobs";
 import { ChannelStorage, KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
+import { MessageHook, MessageHookFactory } from "../hooks/MessageHook";
 import { GuildSource } from "./GuildBootstrapper";
+import { MessageHookInvoker } from "../hooks/MessageHookInvoker";
+import { prepareToChain } from "./RequiresGuildInitialization";
+import { CommandMessageHook } from "../commands/CommandMessageHook";
 
 export class Bootstrapper {
     private jobs: JobFactory[] = [];
-    private commands: Command[] = [];
+    private commands: CommandFactory[] = [];
+    private messageHooks: MessageHookFactory[] = [];
     private config: Config;
     private client: Client;
 
@@ -25,12 +30,17 @@ export class Bootstrapper {
         return this;
     }
 
-    addCommands(commands: Command[]): this {
+    addCommands(commands: CommandFactory[]): this {
         this.commands = [...this.commands, ...commands];
         return this;
     }
 
-    updateCommands(updater: (commands: Command[]) => Command[]): this {
+    addMessageHooks(hooks: MessageHookFactory[]): this {
+        this.messageHooks = [...this.messageHooks, ...hooks];
+        return this;
+    }
+
+    updateCommands(updater: (commands: CommandFactory[]) => CommandFactory[]): this {
         this.commands = updater(this.commands);
         return this;
     }
@@ -42,42 +52,34 @@ export class Bootstrapper {
         this.client = new Client();
         const globalStorage = registerInitializer(() => new ChannelStorage('global', this.config));
         const languageManager = globalStorage.chain(() => new LanguageManager(globalStorage));
-        const commandManager = new CommandManager(this.commands, this.config, globalStorage, languageManager);
         const commandParser = new CommandParser(this.config);
 
+        const commands = registerInitializers(this.commands);
+        const commandManager = prepareToChain(commands).chain(c => new CommandManager(c, this.config, globalStorage, languageManager));
+        const messageHookFactory = () => new CommandMessageHook(commandParser, commandManager);
+
         registerJobs(this.jobs, globalStorage);
+
+        const messageHooks = registerInitializers([messageHookFactory, ...this.messageHooks]);
+        const messageHookInvoker = prepareToChain(messageHooks).chain(h => new MessageHookInvoker(h));
 
         this.client.once('ready', () => {
 
             log.info('Bot is running!');
 
             this.client.user.setStatus('online');
-            this.client.user.setActivity(this.config.status, { type: 'LISTENING' });
+            this.client.user.setActivity(this.config.status, { type: 'PLAYING' });
 
             Promise.all(
                 this.client.guilds.cache.map(guild => runGuildInitializers({ guild }))
             ).then(_ => {
                 this.client.on('message', message => {
-
-                    const { guild } = message;
-                    const commandContext = commandParser.parse(message.content);
-                    if (!commandContext) {
-                        return;
-                    }
-
-                    log.info(`Message from Guild ${guild.name}: ${message.content}`);
-                    try {
-                        commandManager.invoke(commandContext, message);
-                    } catch (error) {
-                        const errorMessage = (error as Error).message;
-                        message.reply(`Error! ${errorMessage}`);
-                    }
+                    messageHookInvoker.ensure(message).then(i => i.invoke(message));
                 });
             }).catch(e => {
                 log.error(`Initialization error! ${e}`);
             });;
         });
-
 
         this.client.login(this.config.token);
     }

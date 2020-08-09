@@ -3,18 +3,19 @@ import { GuildContext } from "../discord/GuildContext";
 import { CommandArgument } from "./CommandArgument";
 import { LocalizedString } from "../localization/LocalizedString";
 import { MessageContext } from "../discord/MessageContext";
-import { GuildInitializerResult, GuildSource } from "../bootstrapper";
+import { GuildSource, RequiresGuildInitialization } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
 import { CommandContext } from "./CommandContext";
 import { Config } from "../Config";
 
-export interface Command {
-    name: string;
+export type CommandFactory = () => Command;
+
+export type Command = {
     description?: LocalizedString;
     invoke(context: MessageContext, ...args: (string | CommandArgument[])[]): Promise<void> | void;
     argumentsMap: CommandArgumentMetadata[];
-}
+} & RequiresGuildInitialization;
 
 export function invokeCommand(
     command: Command,

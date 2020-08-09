@@ -1,7 +1,11 @@
-import { CommandBase, build, optional, CommandArgument, Command, isAggregateCommand, CommandArgumentMetadata, CommandArgumentType } from 'dbb/lib/commands'
-import { localization } from './HelpCommandLocalization';
-import { Language } from 'dbb/lib/localization';
-import { bold, flatten, italic, code } from 'dbb/lib/common';
+import { localization } from "./HelpCommandLocalization";
+import { flatten, bold, italic, code } from "../common";
+import { Language } from "../localization";
+import { CommandBase } from "./CommandBase";
+import { Command } from "./Command";
+import { CommandArgument } from "./CommandArgument";
+import { build, optional, CommandArgumentMetadata, CommandArgumentType } from "./CommandArgumentsMap";
+import { isAggregateCommand } from "./AggregateCommand";
 
 export class HelpCommand extends CommandBase {
     name = 'help';
@@ -20,12 +24,12 @@ export class HelpCommand extends CommandBase {
         if (commandNames.length > 0) {
             const rootCommand = this.registeredCommands.find(c => c.name === rawCommandNames[0]);
             const targetCommand = findCommand(rootCommand, rawCommandNames, 1);
-            this.context.channel.send([
+            this.commandContext.channel.send([
                 ...this.buildCommandFullDescription(targetCommand, rawCommandNames.join(' '), this.currentLanguage, this.config.prefix)
             ]);
         }
         else {
-            this.context.channel.send([
+            this.commandContext.channel.send([
                 localization.availableCommands(this.currentLanguage),
                 ...flatten(this.registeredCommands.map(c => this.buildCommandShortDescription(c, c.name, this.currentLanguage)))
             ])

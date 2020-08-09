@@ -6,6 +6,6 @@ export function registerTwitchCommands(bootstrapper: Bootstrapper) {
     bootstrapper.addJobs([
         storage => new CheckLiveJob(storage)
     ]).addCommands([
-        new TwitchCommand()
+        () => new TwitchCommand()
     ]);
 }

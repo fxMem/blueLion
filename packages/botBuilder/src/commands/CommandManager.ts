@@ -1,26 +1,37 @@
 import { InvocationContext } from "./CommandInfo";
 import { Command, invokeCommand } from "./Command";
-import { MessageContext } from "../discord";
-import { GuildInitializerResult, GuildSource } from "../bootstrapper";
+import { MessageContext, GuildContext } from "../discord";
+import { GuildInitializerResult, GuildSource, RequiresGuildInitialization } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
 import { Config } from "../Config";
+import { HelpCommand } from "./HelpCommand";
 
-export class CommandManager {
+export class CommandManager implements RequiresGuildInitialization {
+    name = "CommandManager";
+    context: GuildContext;
+
     private commandsLookup: { [commandName: string]: Command };
     constructor(
-        commands: Command[],
+        private commands: GuildSource<Command>[],
         private config: Config,
-        private globalStorageInitializer: GuildSource<KeyValueStorage>,
-        private languageManagerInitializer: GuildInitializerResult<LanguageManager>
-    ) {
+        private globalStorage: GuildSource<KeyValueStorage>,
+        private languageManager: GuildInitializerResult<LanguageManager>
+    ) { }
 
-        const distinctCommandNames = Array.from(new Set(commands.map(c => c.name)));
-        if (distinctCommandNames.length != commands.length) {
-            throw new Error(`All command names must be unique!`);
-        }
+    initializeGuild() {
+        return Promise.all(this.commands.map(j => j.ensure(this.context))).then(commands => {
+            const distinctCommandNames = Array.from(new Set(commands.map(c => c.name)));
+            if (distinctCommandNames.length != commands.length) {
+                throw new Error(`All command names must be unique!`);
+            }
 
-        this.commandsLookup = commands.reduce((acc, next) => ({ ...acc, [next.name]: next }), {});
+            if (distinctCommandNames.find(c => c === 'help')) {
+                throw new Error(`Help is reserved system command name!`);
+            }
+
+            this.commandsLookup = [new HelpCommand(commands), ...commands].reduce((acc, next) => ({ ...acc, [next.name]: next }), {});
+        });
     }
 
     invoke(invoicationContext: InvocationContext, messageContext: MessageContext): Promise<Promise<void> | void> {
@@ -35,8 +46,8 @@ export class CommandManager {
             this.config,
             invoicationContext.arguments,
             messageContext,
-            this.globalStorageInitializer,
-            this.languageManagerInitializer
+            this.globalStorage,
+            this.languageManager
         );
     }
 }

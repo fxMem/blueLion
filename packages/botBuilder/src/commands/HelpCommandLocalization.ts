@@ -1,4 +1,4 @@
-import { buildLocalization } from "dbb/lib/localization";
+import { buildLocalization } from "../localization";
 
 export const localization = buildLocalization({
     description: {

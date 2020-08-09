@@ -8,8 +8,8 @@ export class LiveNotificationCommand extends CommandBase {
 
     argumentsMap = build([required('twitchChannel'), mention().required()]);
     doInvoke(twitchChannelName: string) {
-        let channelToNotify = this.context.mentions.channels.size !== 0 
-            ? Promise.resolve(this.context.mentions.channels.first().id) 
+        let channelToNotify = this.commandContext.mentions.channels.size !== 0 
+            ? Promise.resolve(this.commandContext.mentions.channels.first().id) 
             : this.storage.get<string>(defaultNotifyToChannelKey);
 
         return channelToNotify.then(channelId => {

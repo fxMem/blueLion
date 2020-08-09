@@ -32,6 +32,16 @@ export function registerInitializers<T extends RequiresGuildInitialization>(fact
     return results;
 }
 
+export function prepareToChain<T extends RequiresGuildInitialization>(results: GuildInitializerResult<T>[]): {
+    chain<TNext extends RequiresGuildInitialization>(factory: (results: GuildInitializerResult<T>[]) => TNext): GuildInitializerResult<TNext>
+} {
+    return {
+        chain: (factory) => {
+            return results[results.length - 1].chain(() => factory(results));
+        }
+    }
+}
+
 export function buildClassInitializer<T extends RequiresGuildInitialization>(factory: () => T): GuildInitializationCallback<T> {
     return (context) => {
         const instance = factory();

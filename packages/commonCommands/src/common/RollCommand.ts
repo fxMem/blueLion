@@ -29,13 +29,13 @@ export class RollCommand extends CommandBase {
             throw new Error(localization.tooManyRolls(this.currentLanguage));
         }
 
-        const userMentions = this.context.mentions.users.size > 0 ? Array.from(this.context.mentions.users.values()) : [this.context.author];
+        const userMentions = this.commandContext.mentions.users.size > 0 ? Array.from(this.commandContext.mentions.users.values()) : [this.commandContext.author];
         const rolls = userMentions.map(user => ({ user, values: range(rollAmount).map(_ => getRandomIntFromInterval(1, 6)) }));
-        this.context.channel.startTyping();
+        this.commandContext.channel.startTyping();
         setTimeout(() => {
-            this.context.channel.stopTyping();
+            this.commandContext.channel.stopTyping();
             const respose = rolls.map(roll => `${toMention(roll.user)}, ${this.formatRollValues(roll.values)}`);
-            this.context.channel.send([localization.results(this.currentLanguage), ...respose]);
+            this.commandContext.channel.send([localization.results(this.currentLanguage), ...respose]);
         }, 3000);
     }
 
