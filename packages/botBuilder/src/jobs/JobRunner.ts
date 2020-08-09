@@ -2,7 +2,7 @@ import { GuildContext } from "../discord/GuildContext";
 import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
 import { getStateStorageKey, JobRunningInfo, AbstractJob } from "./Job";
 import { createLocalLogScope } from "../log/LogScopes";
-import { GuildInitializerResult } from "../bootstrapper/GuildBootstrapper";
+import { GuildInitializerResult, GuildSource } from "../bootstrapper/GuildBootstrapper";
 import { KeyValueStorage } from "../storage";
 
 type JobInfo = {
@@ -14,11 +14,11 @@ type JobInfo = {
 export class JobRunner implements RequiresGuildInitialization {
     context: GuildContext;
     logger = createLocalLogScope('JobRunner');
+    name = "JobRunner";
     sortedJobs: JobInfo[];
 
     constructor(
-        private registeredJobs: GuildInitializerResult<AbstractJob>[],
-        private globalStorage: GuildInitializerResult<KeyValueStorage>
+        private registeredJobs: GuildSource<AbstractJob>[]
     ) {
 
     }

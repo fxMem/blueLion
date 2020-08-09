@@ -1,6 +1,6 @@
 import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
 import { GuildContext } from "../discord/GuildContext";
-import { GuildInitializerResult } from "../bootstrapper";
+import { GuildInitializerResult, GuildSource } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 
 export function getStateStorageKey(jobName: string): string {
@@ -28,7 +28,7 @@ export abstract class Job<TUserJobState> implements AbstractJob {
     state: JobState<TUserJobState>;
 
     constructor(
-        private globalStorage: GuildInitializerResult<KeyValueStorage>,
+        private globalStorage: GuildSource<KeyValueStorage>,
         private interval: number, 
         private reviver?: (value: any) => TUserJobState) {
     }

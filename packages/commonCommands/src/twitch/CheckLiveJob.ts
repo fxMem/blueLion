@@ -1,5 +1,5 @@
 import { Job } from 'dbb/lib/jobs'
-import { GuildInitializerResult } from 'dbb/lib/bootstrapper';
+import { GuildSource } from 'dbb/lib/bootstrapper';
 import { KeyValueStorage } from 'dbb/lib/storage';
 
 type CheckLiveState = {
@@ -8,7 +8,7 @@ type CheckLiveState = {
 
 export class CheckLiveJob extends Job<CheckLiveState> {
     name = 'checkTwithLive'
-    constructor(storage: GuildInitializerResult<KeyValueStorage>) {
+    constructor(storage: GuildSource<KeyValueStorage>) {
         super(storage, 10 * 1000);
     }
 

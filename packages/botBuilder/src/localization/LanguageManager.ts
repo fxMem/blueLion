@@ -1,16 +1,17 @@
 import { GuildContext } from "../discord/GuildContext";
 import { Language, defaulLanguage } from "./Language";
-import { RequiresGuildInitialization, buildClassInitializer } from "../bootstrapper/RequiresGuildInitialization";
-import { GuildInitializerResult } from "../bootstrapper";
+import { RequiresGuildInitialization } from "../bootstrapper/RequiresGuildInitialization";
+import { GuildSource } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 
 const storageLanguageKey = 'lang';
 let currentLanguage: Language = defaulLanguage;
 
 export class LanguageManager implements RequiresGuildInitialization {
+    name = "LanguageManager";
     context: GuildContext;
 
-    constructor(private globalStorage: GuildInitializerResult<KeyValueStorage>) {
+    constructor(private globalStorage: GuildSource<KeyValueStorage>) {
 
     }
 

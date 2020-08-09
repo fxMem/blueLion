@@ -4,21 +4,27 @@ import { registerForGuildInitialization, GuildInitializerResult } from "./GuildB
 export type RequiresGuildInitialization = {
     context: GuildContext;
     initializeGuild: () => Promise<void>;
-}
+} & Named;
+
+export type Named = {
+    name: string;
+};
 
 export type GuildInitializationCallback<T> = (context: GuildContext) => Promise<T>;
 
-export function registerClassInitializer<T extends RequiresGuildInitialization>(factory: () => T, name: string) {
-    return registerForGuildInitialization(buildClassInitializer(factory), name);
+export type GuildInitializationFactory<T extends RequiresGuildInitialization> = () => T;
+
+export function registerInitializer<T extends RequiresGuildInitialization>(factory: GuildInitializationFactory<T>) {
+    return registerForGuildInitialization(factory);
 }
 
-export function registerClassInitializers<T extends RequiresGuildInitialization>(factoris: { factory: () => T, name: string }[]) {
+export function registerInitializers<T extends RequiresGuildInitialization>(factoris: GuildInitializationFactory<T>[]) {
     let results: GuildInitializerResult<T>[] = [];
     let previous: GuildInitializerResult<T> = null;
-    for (const item of factoris) {
+    for (const factory of factoris) {
         previous = previous === null 
-            ? registerClassInitializer(item.factory, item.name) 
-            : previous.chain(buildClassInitializer(item.factory), item.name);
+            ? registerInitializer(factory) 
+            : previous.chain(factory);
 
         results.push(previous);
     }

@@ -3,7 +3,7 @@ import { GuildContext } from "../discord/GuildContext";
 import { CommandArgument } from "./CommandArgument";
 import { LocalizedString } from "../localization/LocalizedString";
 import { MessageContext } from "../discord/MessageContext";
-import { GuildInitializerResult } from "../bootstrapper";
+import { GuildInitializerResult, GuildSource } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
 import { CommandContext } from "./CommandContext";
@@ -21,12 +21,12 @@ export function invokeCommand(
     config: Config,
     providedArguments: CommandArgument[],
     messageContext: MessageContext,
-    globalStorageInitializer: GuildInitializerResult<KeyValueStorage>,
-    languageManagerInitializer: GuildInitializerResult<LanguageManager>
+    globalStorage: GuildSource<KeyValueStorage>,
+    languageManager: GuildSource<LanguageManager>
 ): Promise<Promise<void> | void> {
 
-    return languageManagerInitializer.ensure(messageContext).then(languageManager => {
-        return globalStorageInitializer.ensure(messageContext).then(storage => ({ storage, languageManager }));
+    return languageManager.ensure(messageContext).then(languageManager => {
+        return globalStorage.ensure(messageContext).then(storage => ({ storage, languageManager }));
     }).then(({ storage, languageManager }) => {
 
         const currentLanguage = languageManager.getCurrentLanguage();

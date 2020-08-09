@@ -1,7 +1,7 @@
 import { InvocationContext } from "./CommandInfo";
 import { Command, invokeCommand } from "./Command";
 import { MessageContext } from "../discord";
-import { GuildInitializerResult } from "../bootstrapper";
+import { GuildInitializerResult, GuildSource } from "../bootstrapper";
 import { KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
 import { Config } from "../Config";
@@ -11,7 +11,7 @@ export class CommandManager {
     constructor(
         commands: Command[],
         private config: Config,
-        private globalStorageInitializer: GuildInitializerResult<KeyValueStorage>,
+        private globalStorageInitializer: GuildSource<KeyValueStorage>,
         private languageManagerInitializer: GuildInitializerResult<LanguageManager>
     ) {
 

@@ -6,6 +6,7 @@ import { Config } from "../Config";
 import { Job, JobFactory, registerJobs } from "../jobs";
 import { ChannelStorage, KeyValueStorage } from "../storage";
 import { LanguageManager } from "../localization";
+import { GuildSource } from "./GuildBootstrapper";
 
 export class Bootstrapper {
     private jobs: JobFactory[] = [];
@@ -39,8 +40,8 @@ export class Bootstrapper {
         const log = enterGlobalLogScope('Root');
 
         this.client = new Client();
-        const globalStorage = registerClassInitializer(() => new ChannelStorage('global', this.config), 'ChannelStorage') as GuildInitializerResult<KeyValueStorage>;
-        const languageManager = globalStorage.chain(buildClassInitializer(() => new LanguageManager(globalStorage)), 'LanguageManager');
+        const globalStorage = registerInitializer(() => new ChannelStorage('global', this.config));
+        const languageManager = globalStorage.chain(() => new LanguageManager(globalStorage));
         const commandManager = new CommandManager(this.commands, this.config, globalStorage, languageManager);
         const commandParser = new CommandParser(this.config);
 

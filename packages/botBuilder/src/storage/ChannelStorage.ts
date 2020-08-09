@@ -3,7 +3,7 @@ import { GuildContext } from "../discord/GuildContext";
 import { registerForGuildInitialization, GuildInitializerResult } from "../bootstrapper/GuildBootstrapper";
 import { TextChannel, Message, Snowflake, Collection } from "discord.js";
 import { tryCreateCategory, tryCreateTextChannel } from "../common/ChannelsHelper";
-import { RequiresGuildInitialization, registerClassInitializer } from "../bootstrapper/RequiresGuildInitialization";
+import { RequiresGuildInitialization, registerInitializer } from "../bootstrapper/RequiresGuildInitialization";
 import { Config } from "../Config";
 
 let setInitialized: () => void;
@@ -29,6 +29,7 @@ const messageCharactersLimit = 2000;
 
 
 export class ChannelStorage implements KeyValueStorage, RequiresGuildInitialization {
+    name = "ChannelStorage";
     context: GuildContext;
     private channel: TextChannel;
     private lookup: { [key: string]: MessageRef };
