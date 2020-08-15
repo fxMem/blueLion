@@ -1,5 +1,6 @@
 node_modules/
 distr/
+packages/customBot/
 packages/botBuilder/lib/
 packages/botExample/lib/
 packages/commonCommands/lib/
