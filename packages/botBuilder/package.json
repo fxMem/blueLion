@@ -6,7 +6,8 @@
     "b": "tsc",
     "r": "tsc && node distr/index.js",
     "debug": "tsc && node distr/index.js",
-	"tsc": "tsc"
+    "tsc": "tsc",
+    "clean": "npx rimraf lib"
   },
   "keywords": [
     "discord",

@@ -4,6 +4,10 @@
   "devDependencies": {
     "@types/node": "^14.0.22",
     "lerna": "^3.22.1",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.6"
+  },
+  "dependencies": {
+    "axios": "^0.19.2"
   }
 }
