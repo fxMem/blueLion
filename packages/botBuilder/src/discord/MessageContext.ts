@@ -1,4 +1,4 @@
-import { User, TextChannel, DMChannel, NewsChannel, MessageMentions, Guild, EmojiIdentifierResolvable, MessageReaction, StringResolvable, MessageOptions, MessageAdditions, Message, SplitOptions, APIMessage } from "discord.js";
+import { User, TextChannel, DMChannel, NewsChannel, MessageMentions, Guild, EmojiIdentifierResolvable, MessageReaction, StringResolvable, MessageOptions, MessageAdditions, Message, SplitOptions, APIMessage, MessageEditOptions, MessageEmbed } from "discord.js";
 import { GuildContext } from "./GuildContext";
 
 export type MessageContext = {
@@ -28,4 +28,10 @@ export type MessageContext = {
     reply(
         options?: (MessageOptions & { split: true | SplitOptions }) | MessageAdditions | APIMessage,
     ): Promise<Message[]>;
+
+    delete(options?: { timeout?: number; reason?: string }): Promise<Message>;
+    edit(content: StringResolvable, options?: MessageEditOptions | MessageEmbed): Promise<Message>;
+    edit(options: MessageEditOptions | MessageEmbed | APIMessage): Promise<Message>;
+
+    suppressEmbeds(suppress?: boolean): Promise<Message>;
 } & GuildContext;
