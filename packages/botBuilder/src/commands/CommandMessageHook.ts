@@ -13,7 +13,6 @@ export class CommandMessageHook implements MessageHook {
     constructor(
         private commandParser: CommandParser,
         private commandManagerSource: GuildSource<CommandManager>) {
-
     }
 
     initializeGuild() {
