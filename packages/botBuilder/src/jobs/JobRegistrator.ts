@@ -7,6 +7,10 @@ import { KeyValueStorage } from "../storage";
 export type JobFactory = (storage: GuildSource<KeyValueStorage>) => AbstractJob;
 
 export function registerJobs(jobFactories: JobFactory[], globalStorage: GuildSource<KeyValueStorage>) {
+    if (jobFactories.length === 0) {
+        return;
+    }
+    
     const factories = jobFactories.map(f => () => f(globalStorage));
     const results = registerInitializers(factories);
 
