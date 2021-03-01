@@ -20,16 +20,8 @@ export function build(argumentsMetadata: CommandArgumentMetadataBuilder[]): Comm
     checkForOptionalUnnamedArguments(allArguments);
     checkForNameCollisions(allArguments);
     checkThatMentionIsUsedOnceAndLast(allArguments);
-    checkThatMentionCannotBeNamed(allArguments);
 
     return allArguments;
-}
-
-function checkThatMentionCannotBeNamed(args: CommandArgumentMetadata[]) {
-    const mentionArg = args.find(a => a.type === CommandArgumentType.mentions);
-    if (mentionArg && mentionArg.name) {
-        throw new Error('Mention argument cannot have a name!');
-    }
 }
 
 function checkThatMentionIsUsedOnceAndLast(args: CommandArgumentMetadata[]) {

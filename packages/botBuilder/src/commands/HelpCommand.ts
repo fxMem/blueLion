@@ -59,14 +59,14 @@ export class HelpCommand extends CommandBase {
             italic(command.description(language) ?? localization.noDescription(language))
         ]
     }
-    
+
     buildCommandFullDescription(command: Command, fullCommandPath: string, language: Language, prefix: string): string[] {
         return [
             ...this.buildCommandShortDescription(command, fullCommandPath, language),
             ...this.buildCommandUsageDescription(command, fullCommandPath, language, prefix)
         ]
     }
-    
+
     buildCommandUsageDescription(command: Command, fullCommandPath: string, language: Language, prefix: string): string[] {
         if (isAggregateCommand(command)) {
             return [
@@ -79,17 +79,25 @@ export class HelpCommand extends CommandBase {
             return [`${localization.usage(language)} ${code(this.formatArgumentsUsageHint(command, fullCommandPath, language, prefix))}`];
         }
     }
-    
+
     formatArgumentsUsageHint({ name, argumentsMap }: Command, fullCommandPath: string, language: Language, prefix: string) {
         return `${prefix} ${fullCommandPath} ${argumentsMap.map(a => `<${this.getArgumentName(a, language)}${this.getArgumentType(a, language)}>`).join(' ')}`;
     }
-    
+
     getArgumentName(arg: CommandArgumentMetadata, language: Language) {
-        return arg.type === CommandArgumentType.mentions ? localization.mentions(language) : arg.name ?? arg.index;
+        return arg.name ?? arg.index;
     }
-    
+
     getArgumentType(arg: CommandArgumentMetadata, language: Language) {
+        return this.getRequirementType(arg, language) + this.getMentionType(arg, language) ;
+    }
+
+    getRequirementType(arg: CommandArgumentMetadata, language: Language) {
         return arg.isRequired ? `:${localization.required(language)}` : `:${localization.optional(language)}`;
+    }
+
+    getMentionType(arg: CommandArgumentMetadata, language: Language) {
+        return arg.type === CommandArgumentType.mentions ? `:${localization.mentions(language)}` : '';
     }
 }
 
